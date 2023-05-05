@@ -1,0 +1,27 @@
+version: '3'
+
+networks:
+  reverse-proxy:
+    external: true
+
+services:
+  ambers-learning:
+    image: ambers-learning:latest
+    container_name: ambers-learning
+    restart: unless-stopped
+    networks:
+      - reverse-proxy
+    volumes:
+      - /home/ubuntu/docker-data/ambers-learning/config:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=reverse-proxy"
+      - "traefik.http.routers.ambers-learning.entrypoints=http"
+      - "traefik.http.routers.ambers-learning.rule=Host(`ambers-learning.swinford.house`)"
+      - "traefik.http.routers.ambers-learning.middlewares=https-redirect@file"
+      - "traefik.http.routers.ambers-learning-secure.entrypoints=https"
+      - "traefik.http.routers.ambers-learning-secure.rule=Host(`ambers-learning.swinford.house`)"
+      - "traefik.http.routers.ambers-learning-secure.tls=true"
+      - "traefik.http.routers.ambers-learning-secure.tls.certresolver=http"
+      - "traefik.http.routers.ambers-learning-secure.service=ambers-learning"
+      - "traefik.http.services.ambers-learning.loadbalancer.server.port=3000"
