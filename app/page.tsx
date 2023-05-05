@@ -81,7 +81,10 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center gap-5 p-24 text-4xl">
       <OptionsPicker onOptionsChange={newOptions => dispatch({ type: "SET_OPTIONS", payload: newOptions})} />
       {state.problem.display}
-      <input className={`bg-transparent text-white w-60 py-2 px-4 border ${inputBorderColor} rounded`} value={input} onChange={updateVal} />
+      <div>
+        x = 
+        <input className={`bg-transparent text-white w-60 py-2 px-4 border ${inputBorderColor} rounded`} value={input} onChange={updateVal} />
+      </div>
       <div className="flex items-center gap-5">
         <button className="bg-transparent hover:bg-blue-500 text-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onClick={verify}>Submit</button>
         <button className="bg-transparent hover:bg-blue-500 text-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onClick={onClickNewProblem}>New Problem</button>
