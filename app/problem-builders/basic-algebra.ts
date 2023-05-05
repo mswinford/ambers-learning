@@ -59,7 +59,6 @@ const createProblem = (options: BasicAlgebraOptions = defaultOptions): Problem =
   options = { ...defaultOptions, ...options };
 
   const randomOperation = getRandomOperation(options.operations);
-  console.log(randomOperation);
 
   if (randomOperation === 'add') {
     return createAddProblem(options.numberMaximum);

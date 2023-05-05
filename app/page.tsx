@@ -1,6 +1,7 @@
 "use client"
-import React, { ChangeEvent, Reducer, useEffect, useMemo, useReducer, useState } from "react";
+import React, { ChangeEvent, useEffect, useMemo, useReducer, useState } from "react";
 import createProblem, { BasicAlgebraOptions, Problem } from "./problem-builders/basic-algebra";
+import { default as OptionsPicker } from "./components/BasicAlgebraOptions";
 
 const OPTIONS: BasicAlgebraOptions = {
   operations: {
@@ -10,31 +11,39 @@ const OPTIONS: BasicAlgebraOptions = {
 }
 
 type State = {
+  options: BasicAlgebraOptions,
   problem: Problem;
   answer?: number;
   status: 'PENDING' | 'INVALID' | 'INCORRECT' | 'CORRECT';
 }
 
-const reducer = (state: State, action: { type: string; payload?: any; }): State => {
-  switch (action.type) {
-    case 'new_problem': 
-      return { problem: createProblem(OPTIONS), answer: undefined, status: 'PENDING'}
-    case 'set_value': 
-      return {...state, answer: action.payload, status: 'PENDING'};
-    case 'set_status': 
-      return {...state, status: action.payload}
-  }
+type Action =
+  { type: 'NEW_PROBLEM' }
+  | { type: 'SET_OPTIONS', payload: BasicAlgebraOptions }
+  | { type: 'SET_VALUE', payload: number }
+  | { type: 'SET_STATUS', payload: State['status'] }
 
-  return state;
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'SET_OPTIONS':
+      return { ...state, options: action.payload}
+    case 'NEW_PROBLEM':
+      return { ...state, problem: createProblem(state.options), answer: undefined, status: 'PENDING' }
+    case 'SET_VALUE':
+      return { ...state, answer: action.payload, status: 'PENDING' };
+    case 'SET_STATUS':
+      return { ...state, status: action.payload }
+  }
 }
 
-const initialState: State = {
+const INITIAL_STATE: State = {
+  options: OPTIONS,
   problem: createProblem(OPTIONS),
   status: 'PENDING'
 }
 
 export default function Home() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [input, setInput] = useState('');
 
   const updateVal = (event: ChangeEvent<HTMLInputElement>) => {
@@ -44,22 +53,22 @@ export default function Home() {
     const val = +str;
 
     if (str !== '' && !isNaN(val)) {
-      dispatch({ type: 'set_value', payload: val });
+      dispatch({ type: 'SET_VALUE', payload: val });
     } else {
-      dispatch({ type: 'set_status', payload: 'INVALID' });
+      dispatch({ type: 'SET_STATUS', payload: 'INVALID' });
     }
   }
 
   const onClickNewProblem = () => {
-    dispatch({ type: 'new_problem' });
+    dispatch({ type: 'NEW_PROBLEM' });
     setInput('');
   }
 
   const verify = () => {
     if (input === '') return;
 
-    if (state.problem.solution === state.answer) dispatch({ type: 'set_status', payload: 'CORRECT' });
-    else dispatch({ type: 'set_status', payload: 'INCORRECT' })
+    if (state.problem.solution === state.answer) dispatch({ type: 'SET_STATUS', payload: 'CORRECT' });
+    else dispatch({ type: 'SET_STATUS', payload: 'INCORRECT' })
   }
 
   const inputBorderColor = useMemo(() => {
@@ -68,10 +77,9 @@ export default function Home() {
     return 'border-white';
   }, [state.status]);
 
-  useEffect(() => { console.log(inputBorderColor) }, [inputBorderColor]);
-
   return (
     <main className="flex min-h-screen flex-col items-center gap-5 p-24 text-4xl">
+      <OptionsPicker onOptionsChange={newOptions => dispatch({ type: "SET_OPTIONS", payload: newOptions})} />
       {state.problem.display}
       <input className={`bg-transparent text-white py-2 px-4 border ${inputBorderColor} rounded`} value={input} onChange={updateVal} />
       <div className="flex items-center gap-5">
