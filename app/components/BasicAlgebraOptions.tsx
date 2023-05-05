@@ -29,7 +29,7 @@ const BasicAlgebraOptions = ({
       numberMaximum: parseInt(event.target.value, 10)
     })
 
-  useEffect(() => onOptionsChange(options), [options])
+  useEffect(() => onOptionsChange(options), [onOptionsChange, options])
 
   return (
     <div className="flex flex-row items-end gap-20 text-xl border border-white rounded p-5">
@@ -53,7 +53,7 @@ const BasicAlgebraOptions = ({
       </div>
       <div className="flex flex-col">
         <label>Maximum Number</label>
-        <input type="text" className="bg-transparent w-28 border border-white rounded" maxLength={6} onChange={onMaxNumberChanged} />
+        <input type="text" className="bg-transparent w-28 py-1 px-2 border border-white rounded" maxLength={6} onChange={onMaxNumberChanged} />
       </div>
     </div>
   );
