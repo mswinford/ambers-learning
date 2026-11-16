@@ -1,36 +1,94 @@
 # ambers-learning
-=======
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+A small self-hosted web app for practising single-step arithmetic. Pick the
+operations to practise, set a maximum number, and the app generates an equation
+with one missing term (`x`) to solve.
 
-First, run the development server:
+Built for one child, running on one home server. No accounts, no tracking, no
+network calls after the page loads.
+
+---
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Build and run the production bundle:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Requirements: Node 18+ (the Dockerfile pins `node:18.13.0`; development has been
+verified on Node 26).
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## How it works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/
+|-- page.tsx                      # the whole client app: state, input, buttons
+|-- layout.tsx                    # root layout, font, metadata
+|-- globals.css                   # Tailwind + the dark background
+|-- problem-builders/
+|   `-- basic-algebra.ts          # pure generator: options in -> { display, solution }
+`-- components/
+    `-- BasicAlgebraOptions.tsx   # checkboxes for operations, max-number field
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+A problem is `{ display: string, solution: number }`. The generator picks an
+enabled operation at random and then hides one of the three terms as `x`:
 
-## Deploy on Vercel
+```
+x + 7 = 12      solution 5
+3 + x = 12      solution 9
+3 + 7 = x       solution 10
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Answers are compared for exact equality. The input border turns green for correct,
+red for incorrect.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Options
+
+| Option | Effect |
+|---|---|
+| Addition / Subtraction / Multiplication / Division | Which operations appear. At least one must be checked |
+| Maximum Number | Upper bound on the generated operands (default 100) |
+
+Note that the maximum constrains *operands*, not results: with a maximum of 10,
+`8 * 9 = 72` is a perfectly valid generated problem.
+
+---
+
+## Deploy
+
+```bash
+docker build -t ambers-learning:latest .
+docker compose up -d
+```
+
+The compose file expects an external Traefik network named `reverse-proxy` and
+publishes the app at `ambers-learning.swinford.house` with an HTTP -> HTTPS
+redirect.
+
+---
+
+## Status
+
+This project was written in May 2023 and has not been changed since. It builds and
+runs, but it has real defects (an unvalidated maximum-number input that can produce
+`NaN` problems, among others) and a toolchain three major versions behind.
+
+Before changing anything, read:
+
+- [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) — a factual record of exactly
+  what the code does today, including known bugs and what was never built.
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — why the architecture looks the way it
+  does, and what each choice cost.
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — prioritized work in phases, with effort and
+  risk for each item.
