@@ -12,10 +12,8 @@ breaks something else.
 ## Phase 0 — Stabilize the baseline
 **Estimate: 2–3 hours · Risk: low · Do this before any new feature.**
 
-**Status: 0.1–0.7 are done on branch `phase0-stabilization`.** A new item came out of
-the work: **0.8 — the SSR/client hydration mismatch** (defect 7 in
-`CURRENT_STATE.md`): the initial problem is generated at module scope, so the
-prerendered HTML and the client state disagree and React logs a hydration error.
+**Status: complete — 0.1 through 0.8 are done on branch `phase0-stabilization`.**
+Item 0.8 (the SSR/client hydration mismatch, defect 7) came out of the work itself.
 
 These are bugs, not features. Each one is a small, isolated change that makes the
 app behave as it already claims to.
@@ -125,5 +123,6 @@ nonsense problems**, and it has no memory of what the child has already practise
 Phase 0 fixes the reliability. Phase 1.3 makes further changes safe. Everything after
 that is genuinely new capability.
 
-**Start here:** 0.1, 0.2, 1.3. That is roughly half a day of work and it turns a
-dormant 2023 repo into something you can confidently add features to.
+**Where we are:** Phase 0 is complete. The next three moves are **1.3** (generator
+tests — the safety net everything else depends on), **1.1** (toolchain upgrade), and
+**1.5** (OpenSpec adoption, run against the first real feature in Phase 2).

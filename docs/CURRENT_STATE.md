@@ -129,7 +129,7 @@ Guarantees the code does **not** provide:
 | 4 | **Medium** | Invalid input is indistinguishable from unattempted input. Typing `abc` sets status `INVALID` (white border), and pressing Submit then compares `undefined` against the solution and reports `INCORRECT`. | `page.tsx:58, 68-71` | **Fixed (0.6)** |
 | 5 | **Medium** | Changing options does not regenerate the current problem, so the UI can show a max of 5 while the displayed problem came from max 100. | `page.tsx:28-29` | **Open — deliberate (ADR-6)** |
 | 6 | **Medium (kid-facing)** | No Enter-to-submit, no success/failure text, no feedback on how close an answer was. | `page.tsx:86-91` | **Fixed (0.6)** |
-| 7 | **Medium** | The initial problem is generated at module scope during prerender, so the server-rendered HTML contains a different random problem than the client's state. React logs a hydration mismatch: `Text content did not match. Server: "x - 20 = 46" Client: "x - 1 = 25"` and replaces the server HTML. | `page.tsx:39-43` (observed in dev) | **Open** |
+| 7 | **Medium** | The initial problem is generated at module scope during prerender, so the server-rendered HTML contains a different random problem than the client's state. React logs a hydration mismatch: `Text content did not match. Server: "x - 20 = 46" Client: "x - 1 = 25"` and replaces the server HTML. | `page.tsx:39-43` (observed in dev) | **Fixed (0.8)** |
 | 8 | **Low** | Dead code (`const t = 0;`), metadata title still "Create Next App". | `BasicAlgebraOptions.tsx:19`, `layout.tsx:7-8` | **Fixed (0.4, 0.7)** |
 | 9 | **Low** | The theme is dark-only in `globals.css`, but the option labels/checkboxes still use Tailwind `dark:` variants, which are evaluated against `prefers-color-scheme` (no `darkMode` setting in `tailwind.config.js`). On a light-mode OS the labels render `text-gray-900` on a black page and are effectively unreadable. Commit `439fb73` removed the media query from CSS but not from the component classes. | `BasicAlgebraOptions.tsx:38-52`, `tailwind.config.js` | **Fixed (0.5)** |
 | 10 | **Low** | The `multiply`/`divide` checkboxes were uncontrolled (`checked={undefined}`), producing a React "changing an uncontrolled input to be controlled" warning on first interaction. | `BasicAlgebraOptions.tsx:46-52` | **Fixed (0.5)** |
@@ -184,8 +184,9 @@ Seven commits, one per roadmap item. What the app now guarantees:
 | 0.5 | `dark:` variants and stray `value=""` removed; all four operations defined in the defaults | Browser: no "uncontrolled input" warning; Tailwind emits `accent-blue-500` and `text-gray-300` |
 | 0.6 | Text feedback in an `aria-live` region, Enter submits, `INVALID` gets its own colour, `verify()` re-reads the input | Browser: correct answer + Enter → "Correct!" (green); wrong + Submit → "Not quite — try again" (red); `abc` → "Enter a number" (yellow) |
 | 0.7 | Real page title/description, Tailwind content glob trimmed to `./app/**` | Build output contains `<title>Amber's Learning</title>` |
+| 0.8 | The first problem is generated in a mount effect instead of at module scope; `verify()` guards against a null problem | The prerendered HTML now contains no equation, and the page mounts with **zero** console warnings (previously a hydration error) |
 
 Idle DOM mutations over 3 seconds in a real browser: **0** (the render loop is gone).
 
 Still open after Phase 0: the option-change-does-not-regenerate behaviour (deliberate,
-ADR-6) and the SSR/client hydration mismatch (defect 7).
+ADR-6). Everything else in §6 is resolved.
