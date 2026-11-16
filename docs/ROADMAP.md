@@ -37,6 +37,9 @@ behaviour contract in `docs/CURRENT_STATE.md` §5.
 ## Phase 1 — Toolchain and safety net
 **Estimate: 4–6 hours · Risk: medium · Depends on Phase 0.**
 
+**Status: complete — 1.1 through 1.5 done on branch `phase1-tests`.**
+Order executed: 1.3 → 1.1 → 1.2 → 1.4 → 1.5.
+
 | ID | Item | Effort | Risk | Notes |
 |---|---|---|---|---|
 | 1.1 | Upgrade Next 13.4 → current major, Tailwind 3.3 → 4.x, remove unused `@types/*` pins | 3–4 h | Medium–High | Do on a branch. App Router metadata and `next/font` APIs are unchanged; the main breakages are Tailwind v4 config and package.json `devDependencies` layout |
@@ -48,6 +51,13 @@ behaviour contract in `docs/CURRENT_STATE.md` §5.
 **Definition of done:** `npm run build` on a current toolchain, a test suite that
 catches a regression in the generator, and one completed OpenSpec change in the
 archive.
+
+**Result:** build, lint and 14 generator tests all pass; `npm audit` reports zero
+vulnerabilities; the Docker image builds and the container serves HTTP 200; the
+baseline spec `openspec/specs/problem-generation/spec.md` records the generator's
+guarantees. React went to 19 rather than staying on 18 because Next 16 deprecates
+React 18. The one thing still outstanding is the first change run through the
+OpenSpec workflow (roadmap 2.1, bound the answer).
 
 ---
 

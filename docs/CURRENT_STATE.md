@@ -138,14 +138,16 @@ Guarantees the code does **not** provide:
 
 ## 7. Environment and toolchain
 
-- **Next.js 13.4.0** (released May 2023). Three major versions behind current.
-- **Node 18** in the Docker image (EOL); local development runs Node 26 and builds fine.
-- **Tailwind 3.3**, config still references a `./pages/` directory that does not exist.
-- No dependency pinning strategy, no CI, no automated linting in any pipeline.
-- Deployment assumes a self-hosted Ubuntu box with Traefik (`reverse-proxy` network,
-  HTTP -> HTTPS redirect via `https-redirect@file` middleware, ACME http resolver).
-  A `/home/ubuntu/docker-data/ambers-learning/config` volume is mounted but nothing in
-  the repo writes to it.
+Updated during Phase 1 (branch `phase1-tests`):
+
+- **Next.js 16.4.6** (Turbopack), **React 19**, **TypeScript 5.9.3**, **Tailwind 4.3.5**
+  (CSS-first config, no `tailwind.config.js`).
+- **Vitest 5** with property tests in `tests/basic-algebra.test.ts` (`npm test`).
+- **ESLint 10** via flat config `eslint.config.mjs`; `next lint` no longer exists in
+  Next 16, so linting runs as `eslint .` and `next build` does not lint.
+- CI in `.github/workflows/ci.yml`: install → lint → test → build, plus a Docker build job.
+- Docker image is **node:24-slim**; local development runs Node 26.
+- `npm audit` is clean (was 17 vulnerabilities, 1 critical, on the 2023 stack).
 
 ---
 
