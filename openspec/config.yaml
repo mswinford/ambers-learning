@@ -1,0 +1,24 @@
+schema: spec-driven
+
+context: |
+  ambers-learning is a single-page arithmetic drill for one child, self-hosted on
+  a home server with Docker behind Traefik. There is no database, no accounts and
+  no server-side state; the whole app is one statically rendered page.
+  Toolchain: Next 16, React 19, TypeScript 5.9, Tailwind 4, Node 24 in Docker.
+  The problem generator (app/problem-builders/*.ts) is pure and React-free; new
+  problem types are added as new builder modules, never by editing the UI.
+  Behaviour is pinned by property tests in tests/basic-algebra.test.ts that assert
+  invariants over thousands of randomly generated problems.
+  docs/CURRENT_STATE.md records what the code actually does today.
+
+rules:
+  proposal:
+    - State explicitly which invariants in tests/basic-algebra.test.ts change
+    - Say what is out of scope, not just what is in scope
+  specs:
+    - Write requirements as observable behaviour, not implementation details
+    - Every requirement has at least one scenario with WHEN/THEN
+  design:
+    - Note the deployment constraint (Docker + Traefik, no database) when relevant
+  tasks:
+    - Every implementation task has a matching test task
