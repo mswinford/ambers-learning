@@ -66,14 +66,27 @@ export default function Home() {
   const verify = () => {
     if (input === '') return;
 
-    if (state.problem.solution === state.answer) dispatch({ type: 'SET_STATUS', payload: 'CORRECT' });
+    const value = Number(input);
+    if (Number.isNaN(value)) {
+      dispatch({ type: 'SET_STATUS', payload: 'INVALID' });
+      return;
+    }
+
+    if (state.problem.solution === value) dispatch({ type: 'SET_STATUS', payload: 'CORRECT' });
     else dispatch({ type: 'SET_STATUS', payload: 'INCORRECT' })
   }
 
-  const inputBorderColor = useMemo(() => {
-    if (state.status === 'CORRECT') return 'border-green-500';
-    if (state.status === 'INCORRECT') return 'border-red-500';
-    return 'border-white';
+  const feedback = useMemo(() => {
+    switch (state.status) {
+      case 'CORRECT':
+        return { border: 'border-green-500', text: 'Correct!', color: 'text-green-500' };
+      case 'INCORRECT':
+        return { border: 'border-red-500', text: 'Not quite — try again', color: 'text-red-500' };
+      case 'INVALID':
+        return { border: 'border-yellow-500', text: 'Enter a number', color: 'text-yellow-500' };
+      default:
+        return { border: 'border-white', text: '', color: '' };
+    }
   }, [state.status]);
 
   const canGenerateProblem = hasAnyOperation(state.options.operations);
@@ -83,9 +96,16 @@ export default function Home() {
       <OptionsPicker options={state.options} onOptionsChange={handleOptionsChange} />
       {state.problem.display}
       <div>
-        x = 
-        <input className={`bg-transparent text-white w-60 py-2 px-4 border ${inputBorderColor} rounded`} value={input} onChange={updateVal} />
+        <label htmlFor="answer">x =</label>
+        <input
+          id="answer"
+          className={`bg-transparent text-white w-60 py-2 px-4 border ${feedback.border} rounded`}
+          value={input}
+          onChange={updateVal}
+          onKeyDown={event => { if (event.key === 'Enter') verify(); }}
+        />
       </div>
+      <p className={`text-2xl ${feedback.color}`} aria-live="polite">{feedback.text}</p>
       <div className="flex items-center gap-5">
         <button className="bg-transparent hover:bg-blue-500 text-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onClick={verify}>Submit</button>
         <button className="bg-transparent hover:bg-blue-500 text-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded disabled:opacity-40 disabled:hover:bg-transparent" onClick={onClickNewProblem} disabled={!canGenerateProblem}>New Problem</button>
