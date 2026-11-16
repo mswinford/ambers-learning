@@ -38,9 +38,14 @@ const getRandomOperation = (operations: BasicAlgebraOptions['operations']) => {
   if (operations.multiply) ops.push('multiply');
   if (operations.divide) ops.push('divide');
 
+  if (ops.length === 0) return undefined;
+
   const randomIndex = Math.floor(Math.random() * ops.length);
   return ops[randomIndex];
-}
+};
+
+export const hasAnyOperation = (operations: BasicAlgebraOptions['operations']): boolean =>
+  Boolean(operations.add || operations.subtract || operations.multiply || operations.divide);
 
 const createAddProblem = (numberMaximum: BasicAlgebraOptions['numberMaximum']) => {
   const a = Math.ceil(Math.random() * numberMaximum!);
@@ -94,20 +99,19 @@ const createProblem = (options: BasicAlgebraOptions = defaultOptions): Problem =
   const merged = { ...defaultOptions, ...options };
   const numberMaximum = clampNumberMaximum(merged.numberMaximum);
 
-  const randomOperation = getRandomOperation(merged.operations);
-
-  switch (randomOperation) {
-    case 'add':
-      return createAddProblem(numberMaximum);
+  switch (getRandomOperation(merged.operations)) {
     case 'subtract':
       return createSubtractProblem(numberMaximum);
     case 'multiply':
       return createMultiplyProblem(numberMaximum);
     case 'divide':
       return createDivideProblem(numberMaximum);
+    default:
+      // Addition, or the defensive case where nothing is selected — the UI
+      // prevents that, but the generator should never hand back an unsolvable
+      // problem.
+      return createAddProblem(numberMaximum);
   }
-
-  return { display: 'Something went wrong', solution: 0};
 }
 
 export default createProblem;

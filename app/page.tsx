@@ -1,6 +1,6 @@
 "use client"
 import React, { ChangeEvent, useCallback, useMemo, useReducer, useState } from "react";
-import createProblem, { BasicAlgebraOptions, Problem } from "./problem-builders/basic-algebra";
+import createProblem, { BasicAlgebraOptions, hasAnyOperation, Problem } from "./problem-builders/basic-algebra";
 import { default as OptionsPicker } from "./components/BasicAlgebraOptions";
 
 const OPTIONS: BasicAlgebraOptions = {
@@ -83,6 +83,8 @@ export default function Home() {
     return 'border-white';
   }, [state.status]);
 
+  const canGenerateProblem = hasAnyOperation(state.options.operations);
+
   return (
     <main className="flex min-h-screen flex-col items-center gap-5 p-24 text-4xl">
       <OptionsPicker onOptionsChange={handleOptionsChange} />
@@ -93,8 +95,11 @@ export default function Home() {
       </div>
       <div className="flex items-center gap-5">
         <button className="bg-transparent hover:bg-blue-500 text-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onClick={verify}>Submit</button>
-        <button className="bg-transparent hover:bg-blue-500 text-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onClick={onClickNewProblem}>New Problem</button>
+        <button className="bg-transparent hover:bg-blue-500 text-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded disabled:opacity-40 disabled:hover:bg-transparent" onClick={onClickNewProblem} disabled={!canGenerateProblem}>New Problem</button>
       </div>
+      {!canGenerateProblem && (
+        <p className="text-xl text-yellow-500" role="alert">Choose at least one operation to generate a new problem.</p>
+      )}
     </main>
   )
 }
