@@ -37,15 +37,16 @@ behaviour contract in `docs/CURRENT_STATE.md` §5.
 ## Phase 1 — Toolchain and safety net
 **Estimate: 4–6 hours · Risk: medium · Depends on Phase 0.**
 
-**Status: complete — 1.1 through 1.5 done on branch `phase1-tests`.**
-Order executed: 1.3 → 1.1 → 1.2 → 1.4 → 1.5.
+**Status: 1.1, 1.2, 1.3 and 1.5 are done on `main`. 1.4 (CI) is deferred — no
+GitHub Actions workflow exists yet, so lint/test/build are run manually.**
+Order executed: 1.3 → 1.1 → 1.2 → 1.5.
 
 | ID | Item | Effort | Risk | Notes |
 |---|---|---|---|---|
 | 1.1 | Upgrade Next 13.4 → current major, Tailwind 3.3 → 4.x, remove unused `@types/*` pins | 3–4 h | Medium–High | Do on a branch. App Router metadata and `next/font` APIs are unchanged; the main breakages are Tailwind v4 config and package.json `devDependencies` layout |
 | 1.2 | Move the Docker image to a maintained Node LTS and split dev vs. dependency installs | 30 min | Low | `node:18.13.0` is EOL |
 | 1.3 | Add Vitest and property tests for the generator | 1–2 h | Low | The highest value-per-minute item in this whole document. Assert invariants over thousands of generated problems: every result is an integer, division is exact, operands and answers respect the configured bounds, every enabled operation is reachable |
-| 1.4 | CI: lint + build + generator tests on every push | 1 h | Low | Turns 1.3 into a guarantee |
+| 1.4 | CI: lint + build + generator tests on every push — **deferred** | 1 h | Low | Would turn 1.3 into a guarantee; needs a PAT with the `workflow` scope to push |
 | 1.5 | Adopt OpenSpec: `openspec init`, transcribe `CURRENT_STATE.md` §5 into a baseline spec, then run the 0.2 fix as the first change through propose → apply → archive | 1–2 h | Low | Validates the workflow on something small before trusting it with a feature |
 
 **Definition of done:** `npm run build` on a current toolchain, a test suite that

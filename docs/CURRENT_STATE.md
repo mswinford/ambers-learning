@@ -145,7 +145,7 @@ Updated during Phase 1 (branch `phase1-tests`):
 - **Vitest 5** with property tests in `tests/basic-algebra.test.ts` (`npm test`).
 - **ESLint 10** via flat config `eslint.config.mjs`; `next lint` no longer exists in
   Next 16, so linting runs as `eslint .` and `next build` does not lint.
-- CI in `.github/workflows/ci.yml`: install → lint → test → build, plus a Docker build job.
+- No CI yet (deferred); the checks are `npm run lint`, `npm test`, `npm run build`.
 - Docker image is **node:24-slim**; local development runs Node 26.
 - `npm audit` is clean (was 17 vulnerabilities, 1 critical, on the 2023 stack).
 
