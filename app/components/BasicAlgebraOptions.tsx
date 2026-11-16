@@ -30,20 +30,20 @@ const BasicAlgebraOptions = ({
     <div className="flex flex-row items-end gap-20 text-xl border border-white rounded p-5">
       <div className="flex flex-col items-start gap-3">
         <div className="flex items-center">
-          <input type="checkbox" checked={options.operations.add} onChange={toggleOperation('add')} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-          <label className="ml-2 font-medium text-gray-900 dark:text-gray-300">Addition</label>
+          <input type="checkbox" checked={Boolean(options.operations.add)} onChange={toggleOperation('add')} className="w-4 h-4 accent-blue-500 rounded" />
+          <label className="ml-2 font-medium text-gray-300">Addition</label>
         </div>
         <div className="flex items-center">
-          <input checked={options.operations.subtract} onChange={toggleOperation('subtract')} type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-          <label className="ml-2 font-medium text-gray-900 dark:text-gray-300">Subtraction</label>
+          <input checked={Boolean(options.operations.subtract)} onChange={toggleOperation('subtract')} type="checkbox" className="w-4 h-4 accent-blue-500 rounded" />
+          <label className="ml-2 font-medium text-gray-300">Subtraction</label>
         </div>
         <div className="flex items-center">
-          <input checked={options.operations.multiply} onChange={toggleOperation('multiply')} type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-          <label className="ml-2 font-medium text-gray-900 dark:text-gray-300">Multiplication</label>
+          <input checked={Boolean(options.operations.multiply)} onChange={toggleOperation('multiply')} type="checkbox" className="w-4 h-4 accent-blue-500 rounded" />
+          <label className="ml-2 font-medium text-gray-300">Multiplication</label>
         </div>
         <div className="flex items-center">
-          <input checked={options.operations.divide} onChange={toggleOperation('divide')} type="checkbox" value="" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-          <label className="ml-2 font-medium text-gray-900 dark:text-gray-300">Division</label>
+          <input checked={Boolean(options.operations.divide)} onChange={toggleOperation('divide')} type="checkbox" className="w-4 h-4 accent-blue-500 rounded" />
+          <label className="ml-2 font-medium text-gray-300">Division</label>
         </div>
       </div>
       <div className="flex flex-col">

@@ -17,7 +17,9 @@ export const NUMBER_MAXIMUM_LIMITS = {
 export const DEFAULT_OPTIONS: BasicAlgebraOptions = {
   operations: {
     add: true,
-    subtract: true
+    subtract: true,
+    multiply: false,
+    divide: false
   },
   numberMaximum: NUMBER_MAXIMUM_LIMITS.default
 };
