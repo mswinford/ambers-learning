@@ -1,11 +1,11 @@
 "use client"
-import React, { ChangeEvent, useCallback, useMemo, useReducer, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import createProblem, { BasicAlgebraOptions, DEFAULT_OPTIONS, hasAnyOperation, Problem } from "./problem-builders/basic-algebra";
 import { default as OptionsPicker } from "./components/BasicAlgebraOptions";
 
 type State = {
   options: BasicAlgebraOptions,
-  problem: Problem;
+  problem: Problem | null;
   answer?: number;
   status: 'PENDING' | 'INVALID' | 'INCORRECT' | 'CORRECT';
 }
@@ -29,9 +29,12 @@ const reducer = (state: State, action: Action): State => {
   }
 }
 
+// The first problem is generated after hydration, not at module scope: if it were
+// created during prerender the server HTML and the client state would disagree and
+// React would report a hydration error.
 const INITIAL_STATE: State = {
   options: DEFAULT_OPTIONS,
-  problem: createProblem(DEFAULT_OPTIONS),
+  problem: null,
   status: 'PENDING'
 }
 
@@ -39,8 +42,11 @@ export default function Home() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [input, setInput] = useState('');
 
-  // Stable identity: the picker's sync effect depends on this callback, so an
-  // inline arrow would re-run it on every render and re-dispatch, looping.
+  useEffect(() => {
+    dispatch({ type: 'NEW_PROBLEM' });
+  }, []);
+
+  // Stable identity so the picker receives the same callback on every render.
   const handleOptionsChange = useCallback((newOptions: BasicAlgebraOptions) => {
     dispatch({ type: 'SET_OPTIONS', payload: newOptions });
   }, []);
@@ -64,7 +70,7 @@ export default function Home() {
   }
 
   const verify = () => {
-    if (input === '') return;
+    if (!state.problem || input === '') return;
 
     const value = Number(input);
     if (Number.isNaN(value)) {
@@ -94,7 +100,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center gap-5 p-24 text-4xl">
       <OptionsPicker options={state.options} onOptionsChange={handleOptionsChange} />
-      {state.problem.display}
+      <div>{state.problem ? state.problem.display : ''}</div>
       <div>
         <label htmlFor="answer">x =</label>
         <input
