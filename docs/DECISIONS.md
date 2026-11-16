@@ -22,10 +22,12 @@ variables in `app/globals.css`. The app is always dark.
 
 **Consequences:**
 - Positive: no theme toggle, no flash of the wrong theme, one background.
-- Negative: the decision was only half applied. `BasicAlgebraOptions.tsx` still uses
+- Negative: the decision was only half applied. `BasicAlgebraOptions.tsx` still used
   Tailwind `dark:` variants (`text-gray-900 dark:text-gray-300`, `bg-gray-100 dark:bg-gray-700`),
   and `tailwind.config.js` has no `darkMode` key, so those still resolve against the
-  OS preference. On a light-mode machine the option labels are dark grey on black.
+  OS preference. On a light-mode machine the option labels were dark grey on black.
+  **Resolved in Phase 0 (item 0.5)** by dropping the `dark:` variants and using
+  `text-gray-300` / `accent-blue-500`.
 
 **Revisit when:** any new UI component is added that uses `dark:` utilities. The
 cheap fix is either `darkMode: 'class'` in the Tailwind config or removing the
@@ -145,8 +147,8 @@ A new problem is only produced when the user presses "New Problem".
 - Negative: the UI can state a maximum of 5 while the visible problem came from a
   maximum of 100. This is the only place where the app's displayed state and its
   behaviour can disagree.
-- Negative: it is also the mechanism behind the suspected render loop
-  (`CURRENT_STATE.md` defect 2).
+- Negative: it is also the mechanism behind the render loop that ran in the shipped
+  app (fixed in Phase 0, item 0.1/0.4 — the picker is now controlled by page state).
 
 **Revisit when:** the input-validation fix lands. Decide deliberately whether option
 changes should regenerate the problem immediately.

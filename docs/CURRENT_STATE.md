@@ -8,6 +8,11 @@ Build status: `npm run build` succeeds on Node 26 (Next 13.4 static prerender, `
 This document is a factual record of **what the code does today**, not what it should do.
 It is the baseline any future change should be measured against.
 
+> **Update:** Phase 0 stabilization (items 0.1–0.7) has been applied on the
+> `phase0-stabilization` branch. §6 marks each defect as resolved; §10 describes
+> the new behaviour. Everything else in this document still describes the original
+> state of the code.
+
 ---
 
 ## 1. What the app is
@@ -108,25 +113,26 @@ Guarantees the code actually provides:
 Guarantees the code does **not** provide:
 - A bound on the magnitude of the answer (multiply/divide can blow past `numberMaximum`).
 - A non-zero operand.
-- Any behaviour when **no** operation is selected — `getRandomOperation` returns
-  `undefined` and the generator falls through to `{ display: 'Something went wrong', solution: 0 }`.
-  The child then has to type `0` to "solve" it.
+- ~~Any behaviour when **no** operation is selected~~ — since Phase 0 an empty
+  selection falls back to addition in the generator, and the UI disables
+  "New Problem" and shows an alert before that can happen.
 
 ---
 
 ## 6. Defects found in the current code
 
-| # | Severity | Description | Evidence |
-|---|---|---|---|
-| 1 | **High** | The "Maximum Number" input is uncontrolled and unvalidated. Clearing it yields `parseInt('') = NaN`, which is merged into options and propagates into the generator: every problem renders as `NaN + x = NaN`. | `BasicAlgebraOptions.tsx:26-30`, `basic-algebra.ts:83` |
-| 2 | **High (needs browser confirmation)** | `useEffect(() => onOptionsChange(options), [onOptionsChange, options])` re-runs on every render, because `page.tsx` passes a freshly-created arrow function as `onOptionsChange`. Each run dispatches `SET_OPTIONS`, which produces a new state object and therefore a new render. Static reading suggests a continuous render loop. | `page.tsx:82`, `BasicAlgebraOptions.tsx:32` |
-| 3 | **Medium** | Two competing defaults. `page.tsx` defines `OPTIONS = { add, subtract }`; the picker defines its own `DEFAULT_OPTIONS` and overwrites state on mount. The page-level constant is effectively dead. | `page.tsx:6-11`, `BasicAlgebraOptions.tsx:6-11` |
-| 4 | **Medium** | Invalid input is indistinguishable from unattempted input. Typing `abc` sets status `INVALID` (white border), and pressing Submit then compares `undefined` against the solution and reports `INCORRECT`. | `page.tsx:58, 68-71` |
-| 5 | **Medium** | Changing options does not regenerate the current problem, so the UI can show a max of 5 while the displayed problem came from max 100. | `page.tsx:28-29` |
-| 6 | **Medium (kid-facing)** | No Enter-to-submit, no success/failure text, no feedback on how close an answer was. | `page.tsx:86-91` |
-| 7 | **Low** | The initial problem is generated at module scope during prerender, so the server-rendered HTML contains a different random problem than the client's state. React hydration silently patches the text. | `page.tsx:39-43` |
-| 8 | **Low** | Dead code (`const t = 0;`), metadata title still "Create Next App". | `BasicAlgebraOptions.tsx:19`, `layout.tsx:7-8` |
-| 9 | **Low** | The theme is dark-only in `globals.css`, but the option labels/checkboxes still use Tailwind `dark:` variants, which are evaluated against `prefers-color-scheme` (no `darkMode` setting in `tailwind.config.js`). On a light-mode OS the labels render `text-gray-900` on a black page and are effectively unreadable. Commit `439fb73` removed the media query from CSS but not from the component classes. | `BasicAlgebraOptions.tsx:38-52`, `tailwind.config.js` |
+| # | Severity | Description | Evidence | Status |
+|---|---|---|---|---|
+| 1 | **High** | The "Maximum Number" input is uncontrolled and unvalidated. Clearing it yields `parseInt('') = NaN`, which is merged into options and propagates into the generator: every problem renders as `NaN + x = NaN`. | `BasicAlgebraOptions.tsx:26-30`, `basic-algebra.ts:83` | **Fixed (0.2)** |
+| 2 | **High** | `useEffect(() => onOptionsChange(options), [onOptionsChange, options])` re-runs on every render, because `page.tsx` passes a freshly-created arrow function as `onOptionsChange`. Each run dispatches `SET_OPTIONS`, which produces a new state object and therefore a new render. Confirmed in a headless run: `Home` rendered 5001 times in 2 seconds and React logged `Maximum update depth exceeded`. | `page.tsx:82`, `BasicAlgebraOptions.tsx:32` | **Fixed (0.1, then structurally removed in 0.4)** |
+| 3 | **Medium** | Two competing defaults. `page.tsx` defines `OPTIONS = { add, subtract }`; the picker defines its own `DEFAULT_OPTIONS` and overwrites state on mount. The page-level constant is effectively dead. | `page.tsx:6-11`, `BasicAlgebraOptions.tsx:6-11` | **Fixed (0.4)** |
+| 4 | **Medium** | Invalid input is indistinguishable from unattempted input. Typing `abc` sets status `INVALID` (white border), and pressing Submit then compares `undefined` against the solution and reports `INCORRECT`. | `page.tsx:58, 68-71` | **Fixed (0.6)** |
+| 5 | **Medium** | Changing options does not regenerate the current problem, so the UI can show a max of 5 while the displayed problem came from max 100. | `page.tsx:28-29` | **Open — deliberate (ADR-6)** |
+| 6 | **Medium (kid-facing)** | No Enter-to-submit, no success/failure text, no feedback on how close an answer was. | `page.tsx:86-91` | **Fixed (0.6)** |
+| 7 | **Medium** | The initial problem is generated at module scope during prerender, so the server-rendered HTML contains a different random problem than the client's state. React logs a hydration mismatch: `Text content did not match. Server: "x - 20 = 46" Client: "x - 1 = 25"` and replaces the server HTML. | `page.tsx:39-43` (observed in dev) | **Open** |
+| 8 | **Low** | Dead code (`const t = 0;`), metadata title still "Create Next App". | `BasicAlgebraOptions.tsx:19`, `layout.tsx:7-8` | **Fixed (0.4, 0.7)** |
+| 9 | **Low** | The theme is dark-only in `globals.css`, but the option labels/checkboxes still use Tailwind `dark:` variants, which are evaluated against `prefers-color-scheme` (no `darkMode` setting in `tailwind.config.js`). On a light-mode OS the labels render `text-gray-900` on a black page and are effectively unreadable. Commit `439fb73` removed the media query from CSS but not from the component classes. | `BasicAlgebraOptions.tsx:38-52`, `tailwind.config.js` | **Fixed (0.5)** |
+| 10 | **Low** | The `multiply`/`divide` checkboxes were uncontrolled (`checked={undefined}`), producing a React "changing an uncontrolled input to be controlled" warning on first interaction. | `BasicAlgebraOptions.tsx:46-52` | **Fixed (0.5)** |
 
 ---
 
@@ -162,3 +168,24 @@ Guarantees the code does **not** provide:
 - Dark-only styling is deliberate and consistent (the last commit removed the dark
   mode query on purpose).
 - The whole app is a single static page: fast, no server state, trivial to deploy.
+
+---
+
+## 10. Phase 0 outcomes (branch `phase0-stabilization`)
+
+Seven commits, one per roadmap item. What the app now guarantees:
+
+| Item | Change | How it was verified |
+|---|---|---|
+| 0.1 | `onOptionsChange` hoisted into `useCallback` | Headless probe: `Home` rendered 5001 times in 2 s before, 2 after |
+| 0.2 | Maximum Number is a controlled `type="number"` field showing 100; invalid text is ignored; the generator clamps to 1–1000 | 200 generated problems for each of `NaN`, `undefined`, `0`, `999999` — no `NaN` in any of them; browser: clearing the field still produced a valid problem |
+| 0.3 | Empty operation selection: UI alert + disabled button, generator falls back to addition | Browser: unchecking all four shows "Choose at least one operation…" and disables New Problem; re-enabling clears it |
+| 0.4 | `DEFAULT_OPTIONS` lives in the problem builder; the picker is controlled (no local state, no syncing effect) | Browser: no render loop; toggles still drive the guard |
+| 0.5 | `dark:` variants and stray `value=""` removed; all four operations defined in the defaults | Browser: no "uncontrolled input" warning; Tailwind emits `accent-blue-500` and `text-gray-300` |
+| 0.6 | Text feedback in an `aria-live` region, Enter submits, `INVALID` gets its own colour, `verify()` re-reads the input | Browser: correct answer + Enter → "Correct!" (green); wrong + Submit → "Not quite — try again" (red); `abc` → "Enter a number" (yellow) |
+| 0.7 | Real page title/description, Tailwind content glob trimmed to `./app/**` | Build output contains `<title>Amber's Learning</title>` |
+
+Idle DOM mutations over 3 seconds in a real browser: **0** (the render loop is gone).
+
+Still open after Phase 0: the option-change-does-not-regenerate behaviour (deliberate,
+ADR-6) and the SSR/client hydration mismatch (defect 7).

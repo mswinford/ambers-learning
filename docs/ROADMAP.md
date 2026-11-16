@@ -12,6 +12,11 @@ breaks something else.
 ## Phase 0 — Stabilize the baseline
 **Estimate: 2–3 hours · Risk: low · Do this before any new feature.**
 
+**Status: 0.1–0.7 are done on branch `phase0-stabilization`.** A new item came out of
+the work: **0.8 — the SSR/client hydration mismatch** (defect 7 in
+`CURRENT_STATE.md`): the initial problem is generated at module scope, so the
+prerendered HTML and the client state disagree and React logs a hydration error.
+
 These are bugs, not features. Each one is a small, isolated change that makes the
 app behave as it already claims to.
 
