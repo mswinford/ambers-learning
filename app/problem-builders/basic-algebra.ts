@@ -8,12 +8,23 @@ export type BasicAlgebraOptions = {
   numberMaximum?: number;
 };
 
+export const NUMBER_MAXIMUM_LIMITS = {
+  default: 100,
+  min: 1,
+  max: 1000
+};
+
 const defaultOptions: BasicAlgebraOptions = {
   operations: {
     add: true
   },
-  numberMaximum: 100
-}
+  numberMaximum: NUMBER_MAXIMUM_LIMITS.default
+};
+
+const clampNumberMaximum = (value: number | undefined): number => {
+  if (typeof value !== 'number' || Number.isNaN(value)) return NUMBER_MAXIMUM_LIMITS.default;
+  return Math.min(NUMBER_MAXIMUM_LIMITS.max, Math.max(NUMBER_MAXIMUM_LIMITS.min, value));
+};
 
 export type Problem = {
   display: string,
@@ -80,19 +91,20 @@ const createDivideProblem = (numberMaximum: BasicAlgebraOptions['numberMaximum']
 }
 
 const createProblem = (options: BasicAlgebraOptions = defaultOptions): Problem => {
-  options = { ...defaultOptions, ...options };
+  const merged = { ...defaultOptions, ...options };
+  const numberMaximum = clampNumberMaximum(merged.numberMaximum);
 
-  const randomOperation = getRandomOperation(options.operations);
+  const randomOperation = getRandomOperation(merged.operations);
 
   switch (randomOperation) {
     case 'add':
-      return createAddProblem(options.numberMaximum);
+      return createAddProblem(numberMaximum);
     case 'subtract':
-      return createSubtractProblem(options.numberMaximum);
+      return createSubtractProblem(numberMaximum);
     case 'multiply':
-      return createMultiplyProblem(options.numberMaximum);
+      return createMultiplyProblem(numberMaximum);
     case 'divide':
-      return createDivideProblem(options.numberMaximum);
+      return createDivideProblem(numberMaximum);
   }
 
   return { display: 'Something went wrong', solution: 0};

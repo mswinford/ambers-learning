@@ -1,13 +1,14 @@
 "use client"
 
 import { ChangeEvent, useEffect, useState } from "react";
-import { BasicAlgebraOptions as Options } from "../problem-builders/basic-algebra";
+import { BasicAlgebraOptions as Options, NUMBER_MAXIMUM_LIMITS } from "../problem-builders/basic-algebra";
 
 const DEFAULT_OPTIONS: Options = {
   operations: {
     add: true,
     subtract: true
-  }
+  },
+  numberMaximum: NUMBER_MAXIMUM_LIMITS.default
 }
 
 const BasicAlgebraOptions = ({
@@ -23,11 +24,16 @@ const BasicAlgebraOptions = ({
       setOptions({ ...options, operations: { ...options.operations, [operation]: event.target.checked } })
     }
 
-  const onMaxNumberChanged = (event: ChangeEvent<HTMLInputElement>) =>
-    setOptions({
-      ...options,
-      numberMaximum: parseInt(event.target.value, 10)
-    })
+  const onMaxNumberChanged = (event: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(event.target.value, 10);
+
+    // Garbage or empty input keeps the current maximum rather than poisoning the
+    // generator with NaN.
+    if (Number.isNaN(parsed)) return;
+
+    const maximum = Math.min(NUMBER_MAXIMUM_LIMITS.max, Math.max(NUMBER_MAXIMUM_LIMITS.min, parsed));
+    setOptions({ ...options, numberMaximum: maximum })
+  }
 
   useEffect(() => onOptionsChange(options), [onOptionsChange, options])
 
@@ -52,8 +58,16 @@ const BasicAlgebraOptions = ({
         </div>
       </div>
       <div className="flex flex-col">
-        <label>Maximum Number</label>
-        <input type="text" className="bg-transparent w-28 py-1 px-2 border border-white rounded" maxLength={6} onChange={onMaxNumberChanged} />
+        <label htmlFor="number-maximum">Maximum Number</label>
+        <input
+          id="number-maximum"
+          type="number"
+          min={NUMBER_MAXIMUM_LIMITS.min}
+          max={NUMBER_MAXIMUM_LIMITS.max}
+          value={options.numberMaximum ?? NUMBER_MAXIMUM_LIMITS.default}
+          className="bg-transparent w-28 py-1 px-2 border border-white rounded"
+          onChange={onMaxNumberChanged}
+        />
       </div>
     </div>
   );
