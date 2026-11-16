@@ -1,14 +1,7 @@
 "use client"
 import React, { ChangeEvent, useCallback, useMemo, useReducer, useState } from "react";
-import createProblem, { BasicAlgebraOptions, hasAnyOperation, Problem } from "./problem-builders/basic-algebra";
+import createProblem, { BasicAlgebraOptions, DEFAULT_OPTIONS, hasAnyOperation, Problem } from "./problem-builders/basic-algebra";
 import { default as OptionsPicker } from "./components/BasicAlgebraOptions";
-
-const OPTIONS: BasicAlgebraOptions = {
-  operations: {
-    add: true,
-    subtract: true
-  }
-}
 
 type State = {
   options: BasicAlgebraOptions,
@@ -37,8 +30,8 @@ const reducer = (state: State, action: Action): State => {
 }
 
 const INITIAL_STATE: State = {
-  options: OPTIONS,
-  problem: createProblem(OPTIONS),
+  options: DEFAULT_OPTIONS,
+  problem: createProblem(DEFAULT_OPTIONS),
   status: 'PENDING'
 }
 
@@ -87,7 +80,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-5 p-24 text-4xl">
-      <OptionsPicker onOptionsChange={handleOptionsChange} />
+      <OptionsPicker options={state.options} onOptionsChange={handleOptionsChange} />
       {state.problem.display}
       <div>
         x = 

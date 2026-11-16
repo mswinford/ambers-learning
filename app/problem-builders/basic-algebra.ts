@@ -14,9 +14,10 @@ export const NUMBER_MAXIMUM_LIMITS = {
   max: 1000
 };
 
-const defaultOptions: BasicAlgebraOptions = {
+export const DEFAULT_OPTIONS: BasicAlgebraOptions = {
   operations: {
-    add: true
+    add: true,
+    subtract: true
   },
   numberMaximum: NUMBER_MAXIMUM_LIMITS.default
 };
@@ -95,8 +96,8 @@ const createDivideProblem = (numberMaximum: BasicAlgebraOptions['numberMaximum']
   return { display: `${a} / ${b} = x`, solution: c };
 }
 
-const createProblem = (options: BasicAlgebraOptions = defaultOptions): Problem => {
-  const merged = { ...defaultOptions, ...options };
+const createProblem = (options: BasicAlgebraOptions = DEFAULT_OPTIONS): Problem => {
+  const merged = { ...DEFAULT_OPTIONS, ...options };
   const numberMaximum = clampNumberMaximum(merged.numberMaximum);
 
   switch (getRandomOperation(merged.operations)) {

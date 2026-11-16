@@ -1,27 +1,18 @@
 "use client"
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent } from "react";
 import { BasicAlgebraOptions as Options, NUMBER_MAXIMUM_LIMITS } from "../problem-builders/basic-algebra";
 
-const DEFAULT_OPTIONS: Options = {
-  operations: {
-    add: true,
-    subtract: true
-  },
-  numberMaximum: NUMBER_MAXIMUM_LIMITS.default
-}
-
 const BasicAlgebraOptions = ({
+  options,
   onOptionsChange
 }: {
+  options: Options;
   onOptionsChange: (options: Options) => void
 }) => {
-  const [options, setOptions] = useState(DEFAULT_OPTIONS);
-  const t = 0;
-
   const toggleOperation = (operation: keyof Options['operations']) =>
     (event: ChangeEvent<HTMLInputElement>) => {
-      setOptions({ ...options, operations: { ...options.operations, [operation]: event.target.checked } })
+      onOptionsChange({ ...options, operations: { ...options.operations, [operation]: event.target.checked } })
     }
 
   const onMaxNumberChanged = (event: ChangeEvent<HTMLInputElement>) => {
@@ -32,10 +23,8 @@ const BasicAlgebraOptions = ({
     if (Number.isNaN(parsed)) return;
 
     const maximum = Math.min(NUMBER_MAXIMUM_LIMITS.max, Math.max(NUMBER_MAXIMUM_LIMITS.min, parsed));
-    setOptions({ ...options, numberMaximum: maximum })
+    onOptionsChange({ ...options, numberMaximum: maximum })
   }
-
-  useEffect(() => onOptionsChange(options), [onOptionsChange, options])
 
   return (
     <div className="flex flex-row items-end gap-20 text-xl border border-white rounded p-5">
