@@ -1,5 +1,5 @@
 "use client"
-import React, { ChangeEvent, useMemo, useReducer, useState } from "react";
+import React, { ChangeEvent, useCallback, useMemo, useReducer, useState } from "react";
 import createProblem, { BasicAlgebraOptions, Problem } from "./problem-builders/basic-algebra";
 import { default as OptionsPicker } from "./components/BasicAlgebraOptions";
 
@@ -46,6 +46,12 @@ export default function Home() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [input, setInput] = useState('');
 
+  // Stable identity: the picker's sync effect depends on this callback, so an
+  // inline arrow would re-run it on every render and re-dispatch, looping.
+  const handleOptionsChange = useCallback((newOptions: BasicAlgebraOptions) => {
+    dispatch({ type: 'SET_OPTIONS', payload: newOptions });
+  }, []);
+
   const updateVal = (event: ChangeEvent<HTMLInputElement>) => {
     const str = event.target.value.trim()
     setInput(str);
@@ -79,7 +85,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-5 p-24 text-4xl">
-      <OptionsPicker onOptionsChange={newOptions => dispatch({ type: "SET_OPTIONS", payload: newOptions})} />
+      <OptionsPicker onOptionsChange={handleOptionsChange} />
       {state.problem.display}
       <div>
         x = 
